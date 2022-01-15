@@ -1,0 +1,69 @@
+version: "3.8"
+services:
+    # REACT service
+    app:
+        container_name: react_app
+        image: app
+        environment:
+            CHOKIDAR_USEPOLLING: "true"
+        build:
+            context: ./app
+        volumes:
+            - ./app/src:/var/www/html/app/src
+        ports:
+            - 3000:3000
+        networks:
+            - api-network
+        depends_on:
+            - nginx
+
+    # PHP service
+    api:
+        stdin_open: true # docker run -i
+        tty: true        # docker run -t
+        container_name: php_api
+        build:
+            context: ./api
+        environment:
+            CHOKIDAR_USEPOLLING: "true"
+        working_dir: /var/www/html/api
+        volumes:
+            - ./api:/var/www/html/api
+        networks:
+            - api-network
+        depends_on:
+            - db
+
+    # MySQL database service
+    db:
+        container_name: mysql_db
+        image: mysql:5.7
+        ports:
+            - "3307:3306"
+        environment:
+            MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
+            MYSQL_DATABASE: ${DB_DATABASE}
+            MYSQL_USER: ${DB_USERNAME}
+            MYSQL_PASSWORD: ${DB_PASSWORD}
+        env_file:
+            - ./.env
+        networks:
+            - api-network
+
+    # Nginx service
+    nginx:
+        container_name: php_nginx
+        image: nginx:alpine
+        ports:
+            - 8000:80
+        volumes:
+            - ./api:/var/www/html/api
+            - ./nginx/conf.d/:/etc/nginx/conf.d/
+        networks:
+            - api-network
+        depends_on:
+            - api
+
+networks:
+    api-network:
+        driver: bridge
