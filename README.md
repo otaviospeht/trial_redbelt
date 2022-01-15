@@ -1,7 +1,7 @@
 # Ambiente DOCKER com PHP8, Laravel8, ReactJS17 e MySQL5.7
 
 Requisitos:
-- Docker e Docker Compose instalados (versão >=4.3)
+- Docker e Docker Compose instalados
 
 O ambiente tem quatro serviços que rodam simultaneamente:
 
